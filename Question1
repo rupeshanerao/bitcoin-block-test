@@ -1,0 +1,112 @@
+import org.openqa.selenium.By;
+
+import org.openqa.selenium.WebDriver;
+
+import org.openqa.selenium.WebElement;
+
+import org.openqa.selenium.chrome.ChromeDriver;
+
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import org.openqa.selenium.support.ui.ExpectedConditions;
+
+import org.openqa.selenium.JavascriptExecutor;
+
+
+
+import java.util.List;
+
+
+
+public class BitcoinBlockTest {
+
+  public static void main(String[] args) {
+
+    System.setProperty("webdriver.chrome.driver", "C:\\Users\\rupesh.anerao\\Downloads\\chromedriver-win64\\chromedriver.exe");
+
+
+
+    WebDriver driver = new ChromeDriver();
+
+
+
+    try {
+
+      driver.get("https://blockstream.info/block/000000000000000000076c036ff5119e5a5a74df77abf64203473364509f7732");
+
+ 
+
+      WebDriverWait wait = new WebDriverWait(driver, 10);
+
+      WebElement transactionSectionHeader = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//h2[contains(text(), 'Transactions')]")));
+
+
+
+      // Test Case 1: Validate the heading "25 of 2875 Transactions"
+
+      String expectedHeading = "25 of 2875 Transactions";
+
+      WebElement headingElement = driver.findElement(By.xpath("//h2[contains(text(), '25 of 2875 Transactions')]"));
+
+      if (headingElement.getText().equals(expectedHeading)) {
+
+        System.out.println("Test Case 1 Passed: Transaction section heading is correct.");
+
+      } else {
+
+        System.out.println("Test Case 1 Failed: Transaction section heading is incorrect.");
+
+      }
+
+
+
+      // Test Case 2: Parse through the transactions visible on the page
+
+      List<WebElement> transactions = driver.findElements(By.cssSelector("div.transaction"));
+
+      System.out.println("Transaction Hashes with exactly 1 input and 2 outputs:");
+
+
+
+      for (WebElement transaction : transactions) {
+
+        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", transaction);
+
+        transaction.click();
+
+
+
+        List<WebElement> inputs = transaction.findElements(By.cssSelector(".inputs .input"));
+
+        List<WebElement> outputs = transaction.findElements(By.cssSelector(".outputs .output"));
+
+
+
+        if (inputs.size() == 1 && outputs.size() == 2) {
+
+          WebElement transactionHash = transaction.findElement(By.cssSelector(".transaction-hash a"));
+
+          System.out.println(transactionHash.getText());
+
+        }
+
+        transaction.click();
+
+      }
+
+
+
+    } catch (Exception e) {
+
+      e.printStackTrace();
+
+    } finally {
+
+      driver.quit();
+
+    }
+
+  }
+
+}
+
